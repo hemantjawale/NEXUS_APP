@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Modern E-commerce Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        lg: "var(--radius)",
+                        md: "calc(var(--radius) - 2px)",
+                        sm: "calc(var(--radius) - 4px)",
+                    },
+                    colors: {
+                        background: "var(--background)",
+                        foreground: "var(--foreground)",
+                        card: {
+                            DEFAULT: "var(--card)",
+                            foreground: "var(--card-foreground)",
+                        },
+                        primary: {
+                            DEFAULT: "var(--primary)",
+                            foreground: "var(--primary-foreground)",
+                        },
+                        secondary: {
+                            DEFAULT: "var(--secondary)",
+                            foreground: "var(--secondary-foreground)",
+                        },
+                        muted: {
+                            DEFAULT: "var(--muted)",
+                            foreground: "var(--muted-foreground)",
+                        },
+                        accent: {
+                            DEFAULT: "var(--accent)",
+                            foreground: "var(--accent-foreground)",
+                        },
+                        destructive: {
+                            DEFAULT: "var(--destructive)",
+                            foreground: "var(--destructive-foreground)",
+                        },
+                        border: "var(--border)",
+                        input: "var(--input)",
+                        ring: "var(--ring)",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    }
+                },
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --background: hsl(210 20% 98%);
+            --foreground: hsl(220 8.9% 17%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(220 8.9% 17%);
+            --primary: hsl(220.9 39.3% 11%);
+            --primary-foreground: hsl(210 20% 98%);
+            --secondary: hsl(220 14.3% 95.9%);
+            --secondary-foreground: hsl(220.9 39.3% 11%);
+            --muted: hsl(220 14.3% 95.9%);
+            --muted-foreground: hsl(220 8.9% 46.1%);
+            --accent: hsl(220 14.3% 95.9%);
+            --accent-foreground: hsl(220.9 39.3% 11%);
+            --destructive: hsl(0 84.2% 60.2%);
+            --destructive-foreground: hsl(210 20% 98%);
+            --border: hsl(220 13% 91%);
+            --input: hsl(220 13% 91%);
+            --ring: hsl(220.9 39.3% 11%);
+            --radius: 0.5rem;
+        }
+        
+        * {
+            border-color: var(--border);
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: Inter, sans-serif;
+        }
+        
+        .nexus-primary { color: #1a365d; }
+        .nexus-secondary { color: #38a169; }
+        .nexus-accent { color: #ed8936; }
+        
+        .bg-nexus-primary { background-color: #1a365d; }
+        .bg-nexus-secondary { background-color: #38a169; }
+        .bg-nexus-accent { background-color: #ed8936; }
+        
+        .border-nexus-primary { border-color: #1a365d; }
+        .hover\:bg-nexus-primary:hover { background-color: #1a365d; }
+        
+        .cart-sidebar {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .cart-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .product-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- @COMPONENT: Header Navigation -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-nexus-primary rounded-lg flex items-center justify-center">
+                                <span class="text-white font-bold text-lg">N</span>
+                            </div>
+                            <span class="text-2xl font-bold nexus-primary">NEXUS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-lg mx-8">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-transparent sm:text-sm" 
+                               placeholder="Search products..." 
+                               data-implementation="Connect to product search API">
+                    </div>
+                </div>
+
+                <!-- Navigation Icons -->
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700 p-2" data-event="click:handleWishlist">
+                        <i class="far fa-heart text-xl"></i>
+                        <span class="sr-only">Wishlist</span>
+                    </button>
+                    
+                    <button class="text-gray-500 hover:text-gray-700 p-2 relative" 
+                            data-event="click:toggleCart" 
+                            id="cart-toggle">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-nexus-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" 
+                              data-bind="cart.itemCount">3</span>
+                        <span class="sr-only">Shopping cart</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <nav class="bg-gray-50 border-t">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8 overflow-x-auto py-2">
+                    <a href="#" class="text-gray-900 hover:text-nexus-primary font-medium whitespace-nowrap py-2">All Products</a>
+                    <a href="#" class="text-gray-600 hover:text-nexus-primary font-medium whitespace-nowrap py-2">Electronics</a>
+                    <a href="#" class="text-gray-600 hover:text-nexus-primary font-medium whitespace-nowrap py-2">Fashion</a>
+                    <a href="#" class="text-gray-600 hover:text-nexus-primary font-medium whitespace-nowrap py-2">Home & Garden</a>
+                    <a href="#" class="text-gray-600 hover:text-nexus-primary font-medium whitespace-nowrap py-2">Sports</a>
+                    <a href="#" class="text-gray-600 hover:text-nexus-primary font-medium whitespace-nowrap py-2">Books</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- @END_COMPONENT: Header Navigation -->
+
+    <!-- @COMPONENT: Hero Section -->
+    <section class="relative overflow-hidden">
+        <!-- Modern tech lifestyle hero image -->
+        <div class="absolute inset-0">
+            <img class="w-full h-full object-cover" 
+                 src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+                 alt="Modern shopping experience hero banner">
+            <div class="absolute inset-0 bg-gray-900 opacity-50"></div>
+        </div>
+        
+        <div class="relative max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    Discover Amazing Products
+                </h1>
+                <p class="mt-6 text-xl text-gray-300 max-w-3xl mx-auto">
+                    Shop the latest trends and find everything you need at unbeatable prices. 
+                    Join millions of satisfied customers worldwide.
+                </p>
+                <div class="mt-10">
+                    <button class="bg-nexus-accent hover:bg-orange-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200">
+                        Shop Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero Section -->
+
+    <!-- @COMPONENT: Category Grid -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore our carefully curated collections</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                <!-- @MAP: categories.map(category => ( -->
+                <!-- Electronics category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="electronics">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Electronics category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Electronics</h3>
+                </div>
+                
+                <!-- Fashion category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="fashion">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Fashion category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Fashion</h3>
+                </div>
+                
+                <!-- Home & Garden category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="home">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Home and garden category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Home & Garden</h3>
+                </div>
+                
+                <!-- Sports category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="sports">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Sports and fitness category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Sports</h3>
+                </div>
+                
+                <!-- Books category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="books">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Books and literature category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Books</h3>
+                </div>
+                
+                <!-- Beauty category -->
+                <div class="group cursor-pointer" data-event="click:navigateToCategory" data-category="beauty">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-square mb-3">
+                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Beauty and cosmetics category" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 text-center">Beauty</h3>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Category Grid -->
+
+    <!-- @COMPONENT: Featured Products -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Discover our most popular and trending items</p>
+            </div>
+            
+            <!-- Product Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- @MAP: products.map(product => ( -->
+                
+                <!-- Product 1: Wireless Headphones -->
+                <div class="product-card bg-white rounded-xl shadow-sm border hover:shadow-lg cursor-pointer" 
+                     data-event="click:openProductDetail" 
+                     data-product-id="1">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Premium wireless headphones with noise cancellation" 
+                             class="w-full h-64 object-cover rounded-t-xl">
+                        <div class="absolute top-3 right-3">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                <i class="far fa-heart text-gray-600"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-nexus-accent text-white px-2 py-1 rounded-full text-xs font-medium">New</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2" data-bind="product.name">Premium Wireless Headphones</h3>
+                        <p class="text-gray-600 text-sm mb-3" data-bind="product.description">High-quality sound with active noise cancellation</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-gray-900" data-bind="product.price">$199.99</span>
+                                <span class="text-sm text-gray-500 line-through" data-bind="product.originalPrice">$249.99</span>
+                            </div>
+                            <button class="bg-nexus-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors" 
+                                    data-event="click:addToCart" 
+                                    data-product-id="1">
+                                Add to Cart
+                            </button>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2" data-bind="product.reviewCount">(156)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2: Smartphone -->
+                <div class="product-card bg-white rounded-xl shadow-sm border hover:shadow-lg cursor-pointer" 
+                     data-event="click:openProductDetail" 
+                     data-product-id="2">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Latest smartphone with advanced camera system" 
+                             class="w-full h-64 object-cover rounded-t-xl">
+                        <div class="absolute top-3 right-3">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                <i class="far fa-heart text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2" data-bind="product.name">Latest Smartphone Pro</h3>
+                        <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Advanced camera system and lightning-fast performance</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-gray-900" data-bind="product.price">$899.00</span>
+                            </div>
+                            <button class="bg-nexus-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors" 
+                                    data-event="click:addToCart" 
+                                    data-product-id="2">
+                                Add to Cart
+                            </button>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="far fa-star text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2" data-bind="product.reviewCount">(89)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3: Laptop -->
+                <div class="product-card bg-white rounded-xl shadow-sm border hover:shadow-lg cursor-pointer" 
+                     data-event="click:openProductDetail" 
+                     data-product-id="3">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="High-performance laptop for professionals" 
+                             class="w-full h-64 object-cover rounded-t-xl">
+                        <div class="absolute top-3 right-3">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                <i class="far fa-heart text-gray-600"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-nexus-secondary text-white px-2 py-1 rounded-full text-xs font-medium">Sale</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2" data-bind="product.name">Professional Laptop Pro</h3>
+                        <p class="text-gray-600 text-sm mb-3" data-bind="product.description">High-performance laptop for creative professionals</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-gray-900" data-bind="product.price">$1,299.00</span>
+                                <span class="text-sm text-gray-500 line-through" data-bind="product.originalPrice">$1,499.00</span>
+                            </div>
+                            <button class="bg-nexus-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors" 
+                                    data-event="click:addToCart" 
+                                    data-product-id="3">
+                                Add to Cart
+                            </button>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2" data-bind="product.reviewCount">(234)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4: Watch -->
+                <div class="product-card bg-white rounded-xl shadow-sm border hover:shadow-lg cursor-pointer" 
+                     data-event="click:openProductDetail" 
+                     data-product-id="4">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" 
+                             alt="Smart watch with fitness tracking features" 
+                             class="w-full h-64 object-cover rounded-t-xl">
+                        <div class="absolute top-3 right-3">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                <i class="far fa-heart text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2" data-bind="product.name">Smart Fitness Watch</h3>
+                        <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Track your health and stay connected</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-gray-900" data-bind="product.price">$299.99</span>
+                            </div>
+                            <button class="bg-nexus-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors" 
+                                    data-event="click:addToCart" 
+                                    data-product-id="4">
+                                Add to Cart
+                            </button>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-star text-xs"></i>
+                                <i class="far fa-star text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2" data-bind="product.reviewCount">(127)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+            
+            <div class="text-center mt-12">
+                <button class="border border-nexus-primary text-nexus-primary hover:bg-nexus-primary hover:text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                    View All Products
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Featured Products -->
+
+    <!-- @COMPONENT: Newsletter Signup -->
+    <section class="py-16 bg-nexus-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white mb-4">Stay in the Loop</h2>
+                <p class="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+                    Get the latest updates on new products, special offers, and exclusive deals
+                </p>
+                <div class="max-w-md mx-auto flex gap-4">
+                    <input type="email" 
+                           placeholder="Enter your email" 
+                           class="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+                           data-implementation="Connect to newsletter signup API">
+                    <button class="bg-nexus-accent hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Newsletter Signup -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-nexus-accent rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">N</span>
+                        </div>
+                        <span class="text-2xl font-bold">NEXUS</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Your trusted destination for quality products at amazing prices.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Shipping Info</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Returns</a></li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Electronics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Fashion</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Home & Garden</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sports</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Books</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-phone text-nexus-accent"></i>
+                            <span class="text-gray-400">+1 (555) 123-4567</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-envelope text-nexus-accent"></i>
+                            <span class="text-gray-400">support@nexus.com</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-map-marker-alt text-nexus-accent"></i>
+                            <span class="text-gray-400">123 Commerce St, City, State 12345</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2024 NEXUS. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <!-- @COMPONENT: Shopping Cart Sidebar -->
+    <div class="fixed inset-0 overflow-hidden z-50 hidden" id="cart-overlay">
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Backdrop -->
+            <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" data-event="click:closeCart"></div>
+            
+            <!-- Cart Panel -->
+            <section class="absolute right-0 top-0 max-w-xs w-full h-full shadow-xl">
+                <div class="cart-sidebar bg-white h-full flex flex-col">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-4 py-6 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Shopping Cart</h2>
+                        <button class="text-gray-400 hover:text-gray-500" data-event="click:closeCart">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Cart Items -->
+                    <div class="flex-1 px-4 py-6 overflow-y-auto">
+                        <div class="space-y-6" data-bind="cart.items">
+                            <!-- @MAP: cartItems.map(item => ( -->
+                            <!-- Cart Item 1 -->
+                            <div class="flex space-x-4" data-mock="true">
+                                <div class="flex-shrink-0">
+                                    <img class="w-16 h-16 object-cover rounded-lg" 
+                                         src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                                         alt="Wireless Headphones">
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium text-gray-900">Premium Wireless Headphones</h3>
+                                    <p class="text-sm text-gray-500 mt-1">$199.99</p>
+                                    <div class="flex items-center mt-2">
+                                        <button class="text-gray-400 hover:text-gray-500">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <span class="mx-2 text-sm font-medium">1</span>
+                                        <button class="text-gray-400 hover:text-gray-500">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                        <button class="ml-auto text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cart Item 2 -->
+                            <div class="flex space-x-4" data-mock="true">
+                                <div class="flex-shrink-0">
+                                    <img class="w-16 h-16 object-cover rounded-lg" 
+                                         src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                                         alt="Smart Fitness Watch">
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium text-gray-900">Smart Fitness Watch</h3>
+                                    <p class="text-sm text-gray-500 mt-1">$299.99</p>
+                                    <div class="flex items-center mt-2">
+                                        <button class="text-gray-400 hover:text-gray-500">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <span class="mx-2 text-sm font-medium">2</span>
+                                        <button class="text-gray-400 hover:text-gray-500">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                        <button class="ml-auto text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="border-t px-4 py-6">
+                        <div class="flex justify-between text-base font-medium text-gray-900 mb-4">
+                            <p>Subtotal</p>
+                            <p data-bind="cart.subtotal">$799.97</p>
+                        </div>
+                        <p class="mt-0.5 text-sm text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
+                        <button class="w-full bg-nexus-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-800 transition-colors mb-4" 
+                                data-event="click:proceedToCheckout">
+                            Checkout
+                        </button>
+                        <button class="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors" 
+                                data-event="click:continueShopping">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Shopping Cart Sidebar -->
+
+    <!-- @STATE: cartOpen:boolean = false -->
+    <!-- @STATE: products:array = [] -->
+    <!-- @STATE: categories:array = [] -->
+    <!-- @STATE: cartItems:array = [] -->
+
+    <script>
+        // TODO: Implement React state management, product API integration, and cart functionality
+        (function() {
+            // Cart toggle functionality
+            const cartToggle = document.getElementById('cart-toggle');
+            const cartOverlay = document.getElementById('cart-overlay');
+            const cartSidebar = cartOverlay?.querySelector('.cart-sidebar');
+            
+            function openCart() {
+                cartOverlay?.classList.remove('hidden');
+                setTimeout(() => {
+                    cartSidebar?.classList.add('open');
+                }, 10);
+            }
+            
+            function closeCart() {
+                cartSidebar?.classList.remove('open');
+                setTimeout(() => {
+                    cartOverlay?.classList.add('hidden');
+                }, 300);
+            }
+            
+            cartToggle?.addEventListener('click', openCart);
+            
+            // Close cart when clicking backdrop or close button
+            cartOverlay?.addEventListener('click', (e) => {
+                if (e.target === cartOverlay || e.target.closest('[data-event="click:closeCart"]')) {
+                    closeCart();
+                }
+            });
+            
+            // TODO: Implement add to cart functionality
+            document.addEventListener('click', (e) => {
+                const addToCartBtn = e.target.closest('[data-event="click:addToCart"]');
+                if (addToCartBtn) {
+                    const productId = addToCartBtn.dataset.productId;
+                    console.log('Add to cart:', productId);
+                    // TODO: Implement actual cart logic with React state management
+                }
+            });
+            
+            // TODO: Implement product search
+            const searchInput = document.querySelector('input[placeholder="Search products..."]');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    console.log('Search query:', e.target.value);
+                    // TODO: Implement search API call
+                });
+            }
+            
+            // TODO: Implement category navigation
+            document.addEventListener('click', (e) => {
+                const categoryBtn = e.target.closest('[data-event="click:navigateToCategory"]');
+                if (categoryBtn) {
+                    const category = categoryBtn.dataset.category;
+                    console.log('Navigate to category:', category);
+                    // TODO: Implement category filtering
+                }
+            });
+            
+            // TODO: Implement product detail modal/page
+            document.addEventListener('click', (e) => {
+                const productCard = e.target.closest('[data-event="click:openProductDetail"]');
+                if (productCard) {
+                    const productId = productCard.dataset.productId;
+                    console.log('Open product detail:', productId);
+                    // TODO: Implement product detail view
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
